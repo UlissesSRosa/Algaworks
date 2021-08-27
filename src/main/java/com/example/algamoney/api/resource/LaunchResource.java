@@ -15,11 +15,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
+
+
 
 @RestController
 @RequestMapping("/launch")
@@ -54,6 +59,7 @@ public class LaunchResource {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Launch> create(@Valid @RequestBody Launch launch, HttpServletResponse response){
         Launch launchSaved = launchService.save(launch);
         publisher.publishEvent(new ResourceCreatedEvent(this, response , launchSaved.getCode()));

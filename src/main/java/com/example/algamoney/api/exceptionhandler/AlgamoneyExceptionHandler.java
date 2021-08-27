@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -73,6 +74,14 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({NoSuchElementException.class})
     public ResponseEntity<Object> handleEmptyResultDataAccessException(NoSuchElementException ex, WebRequest request){
         String userMessage = messageSource.getMessage("resource.not-found", null, LocaleContextHolder.getLocale());
+        String devMessage = ex.toString();
+        List<Erro> errors = Arrays.asList(new Erro(userMessage, devMessage));
+        return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request){
+        String userMessage = messageSource.getMessage("authorization.failed", null, LocaleContextHolder.getLocale());
         String devMessage = ex.toString();
         List<Erro> errors = Arrays.asList(new Erro(userMessage, devMessage));
         return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);

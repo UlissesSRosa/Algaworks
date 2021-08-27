@@ -8,10 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
+
+
 
 @RestController
 @RequestMapping("/person")
@@ -33,6 +38,7 @@ public class PersonResource {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Person> create(@Valid @RequestBody Person person, HttpServletResponse response){
         Person personSaved = personRepository.save(person);
         publisher.publishEvent(new ResourceCreatedEvent(this, response , personSaved.getCode()));
@@ -53,6 +59,7 @@ public class PersonResource {
     }
 
     @PutMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Person> update(@PathVariable Long code, @Valid @RequestBody Person person){
         Person personSaved = personService.update(code, person);
         return ResponseEntity.ok(personSaved);
